@@ -1,13 +1,24 @@
 # Home media server stack
 
 services:
-  # gluetun: # vpn gate
-  #   image: ...
-  #   container_name: media-vpn
+  gluetun: # vpn gate
+    image: ...
+    container_name: media-vpn
 
-  # bazarr: # subtitle grabber
-  #   image: ...
-  #   container_name: bazarr
+  bazarr: # subtitle grabber
+    image: lscr.io/linuxserver/bazarr:${BAZARR_TAG}
+    container_name: bazarr
+    environment:
+      - PUID=${PUID:?missing PUID}
+      - PGID=${PGID:?missing PGID}
+      - TZ=${TZ:?missing time zone}
+    volumes:
+      - ${CONFIG_DIR}/config/bazarr:/config
+      - ${DATA_ROOT}/data:/data
+    ports:
+      - ${BAZARR_PORT}:6767
+    networks: [frontend-net]
+    restart: unless-stopped
 
   prowlarr: # indexer manager for Sonarr and Radarr
     image: lscr.io/linuxserver/prowlarr:${PROWLARR_TAG}
