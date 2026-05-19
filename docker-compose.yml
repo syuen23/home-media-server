@@ -1,7 +1,7 @@
 # Home media server stack
 
 services:
-  # gluetun: # vpn
+  # gluetun: # vpn gate
   #   image: ...
   #   container_name: media-vpn
 
@@ -17,9 +17,10 @@ services:
       - PGID=${PGID:?missing PGID}
       - TZ=${TZ:?missing time zone}
     volumes:
-      - ${DATA_ROOT}/config/prowlarr:/config
+      - ${CONFIG_DIR}/config/prowlarr:/config
     ports:
       - ${PROWLARR_PORT}:9696
+    networks: [arr-net]
     restart: unless-stopped
 
   sonarr: # tv show PVR
@@ -30,24 +31,26 @@ services:
       - PGID=${PGID:?missing PGID}
       - TZ=${TZ:?missing time zone}
     volumes:
-      - ${DATA_ROOT}/config/sonarr:/config
+      - ${CONFIG_DIR}/config/sonarr:/config
       - ${DATA_ROOT}/data:/data
     ports:
       - ${SONARR_PORT}:8989
+    networks: [arr-net, frontend-net]
     restart: unless-stopped
 
   radarr: # movie pvr
-    image: lscr.io/linuxserver/radarr:latest
+    image: lscr.io/linuxserver/radarr:${RADARR_TAG}
     container_name: radarr
     environment:
       - PUID=${PUID:?missing PUID}
       - PGID=${PGID:?missing PGID}
       - TZ=${TZ:?missing time zone}
     volumes:
-      - ${DATA_ROOT}/config/radarr:/config
+      - ${CONFIG_DIR}/config/radarr:/config
       - ${DATA_ROOT}/data:/data
     ports:
       - ${RADARR_PORT}:7878
+    networks: [arr-net, frontend-net]
     restart: unless-stopped
 
   nzbget: # usenet download agent
@@ -60,10 +63,11 @@ services:
       - NZBGET_USER=${NZBGET_USER} # optional
       - NZBGET_PASS=${NZBGET_PASS} # optional
     volumes:
-      - ${DATA_ROOT}/config/nzbget:/config
+      - ${CONFIG_DIR}/config/nzbget:/config
       - ${DATA_ROOT}/data:/data
     ports:
       - ${NZBGET_PORT}:6789
+    networks: [arr-net]
     restart: unless-stopped
 
   seerr: # automatic content requester
@@ -73,17 +77,18 @@ services:
     environment:
       - LOG_LEVEL=debug
       - TZ=${TZ}
-      - PORT=5055 #optional
+      - PORT=5055 # optional
     ports:
       - ${SEERR_PORT}:5055
     volumes:
-      - seerr-data:/app/config
+      - ${CONFIG_DIR}/config/seerr:/app/config
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:${SEERR_PORT}/api/v1/settings/public || exit 1
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/settings/public || exit 1
       start_period: 20s
       timeout: 3s
       interval: 15s
       retries: 3
+    networks: [frontend-net]
     restart: unless-stopped
 
   plex: # media server
@@ -100,14 +105,12 @@ services:
       - VERSION=docker # set whether or not to update plex
       - PLEX_CLAIM=${PLEX_CLAIM} # optional, from https://plex.tv/claim, expires in 4 min
     volumes:
-      - ${DATA_ROOT}/config/plex:/config # plex library location
+      - ${CONFIG_DIR}/config/plex:/config # plex library location
       - ${DATA_ROOT}/data:/data
     restart: unless-stopped
 
 networks:
-  default:
-    name: media-server
-
-volumes:
-  seerr-data:
-    external: true
+  arr-net:
+    name: arr
+  frontend-net:
+    name: frontend
