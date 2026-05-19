@@ -138,16 +138,3 @@ Configure services in this order so each one can find the service it depends on:
 
 After this, \*arr imports are instant hardlinks — the file appears in
 `/data/media/...` without duplicating disk space.
-
-## Areas for improvement
-
-- wrap download layer within Gluetun container -> vpn requirement for downloads
-
-- implement logging
-
-- build in non-root containerization? extra security layer
-
-## Current services I am using
-- Newshosting as my usenet
-- need to find an indexer for prowlarr -> sonarr/radarr
-   - nzbgeek, ninja central
