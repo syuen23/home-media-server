@@ -2,8 +2,30 @@
 
 services:
   gluetun: # vpn gate
-    image: ...
+    image: qmcgaw/gluetun:${GLUETUN_TAG}
     container_name: media-vpn
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
+      - VPN_TYPE=${VPN_TYPE}
+      - OPENVPN_USER=${OPENVPN_USER}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - TZ=${TZ}
+      - SERVER_CITIES=${SERVER_CITIES}
+    networks: [arr-net]
+    ports:
+      - ${NZBGET_PORT}:6789
+      - ${PROWLARR_PORT}:9696
+    restart: unless-stopped
+    healthcheck:
+      test: ping -c 1 www.google.com || exit 1
+      start_period: 30s
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   bazarr: # subtitle grabber
     image: lscr.io/linuxserver/bazarr:${BAZARR_TAG}
@@ -29,10 +51,11 @@ services:
       - TZ=${TZ:?missing time zone}
     volumes:
       - ${CONFIG_DIR}/config/prowlarr:/config
-    ports:
-      - ${PROWLARR_PORT}:9696
-    networks: [arr-net]
+    network_mode: service:gluetun
     restart: unless-stopped
+    depends_on:
+      gluetun:
+        condition: service_healthy
 
   sonarr: # tv show PVR
     image: lscr.io/linuxserver/sonarr:${SONARR_TAG}
@@ -76,10 +99,11 @@ services:
     volumes:
       - ${CONFIG_DIR}/config/nzbget:/config
       - ${DATA_ROOT}/data:/data
-    ports:
-      - ${NZBGET_PORT}:6789
-    networks: [arr-net]
+    network_mode: service:gluetun
     restart: unless-stopped
+    depends_on:
+      gluetun:
+        condition: service_healthy
 
   seerr: # automatic content requester
     image: ghcr.io/seerr-team/seerr:${SEERR_TAG}
