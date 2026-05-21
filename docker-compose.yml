@@ -1,6 +1,16 @@
 # Home media server stack
 
 services:
+  buildarr:
+    image: callum027/buildarr:latest
+    restart: always
+    volumes:
+      - ${CONFIG_DIR}/config/buildarr:/config:ro
+    environment:
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+
   gluetun: # vpn gate
     image: qmcgaw/gluetun:${GLUETUN_TAG}
     container_name: media-vpn
