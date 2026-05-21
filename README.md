@@ -70,13 +70,13 @@ cp .env.example .env
 
 Key values to set in `.env`:
 
-| Variable | How to get it |
-|---|---|
-| `PUID` / `PGID` | Output of `id` above |
-| `TZ` | Your timezone, e.g. `America/New_York` |
-| `TAILSCALE_IP` | Output of `tailscale ip -4` |
-| `PLEX_CLAIM` | https://plex.tv/claim (expires in 4 min, grab it right before first boot) |
-| `NZBGET_USER` / `NZBGET_PASS` | Choose your own credentials for the NZBGet web UI |
+| Variable                      | How to get it                                                             |
+| ----------------------------- | ------------------------------------------------------------------------- |
+| `PUID` / `PGID`               | Output of `id` above                                                      |
+| `TZ`                          | Your timezone, e.g. `America/New_York`                                    |
+| `TAILSCALE_IP`                | Output of `tailscale ip -4`                                               |
+| `PLEX_CLAIM`                  | https://plex.tv/claim (expires in 4 min, grab it right before first boot) |
+| `NZBGET_USER` / `NZBGET_PASS` | Choose your own credentials for the NZBGet web UI                         |
 
 ### 4. Create directories
 
@@ -130,11 +130,22 @@ Configure services in this order so each one can find the service it depends on:
 4. **Radarr** — same as Sonarr but category `movies`, root folder `/data/media/movies`.
 
 5. **Plex** — claim the server using your `PLEX_CLAIM` token, then add libraries:
-   - TV Shows → `/data/media/tv`
-   - Movies → `/data/media/movies`
+    - TV Shows → `/data/media/tv`
+    - Movies → `/data/media/movies`
 
 6. **Seerr** — connect to your Plex server and your Sonarr/Radarr instances so
    users can request content.
 
 After this, \*arr imports are instant hardlinks — the file appears in
 `/data/media/...` without duplicating disk space.
+
+## Things to add
+
+- buildarr for automating configuration/setup
+
+- tailscale for backend service access
+- proxy for remote server access
+
+- tautulli for monitoring media server
+
+- jellyfin server?
