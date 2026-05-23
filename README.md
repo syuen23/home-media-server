@@ -149,3 +149,5 @@ After this, \*arr imports are instant hardlinks — the file appears in
 - tautulli for monitoring media server
 
 - jellyfin server?
+
+- separate sonarr/radarr instances for 4k searches
