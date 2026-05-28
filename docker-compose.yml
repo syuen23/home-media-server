@@ -27,6 +27,22 @@ services:
       timeout: 10s
       retries: 3
 
+  profilarr:
+    image: ghcr.io/dictionarry-hub/profilarr:latest
+    container_name: profilarr
+    ports:
+      - '6868:6868'
+    volumes:
+      - ./config:/config
+    environment:
+      - PUID=${PUID:?missing PUID}
+      - PGID=${PGID:?missing PGID}
+      - TZ=${TZ:?missing time zone}
+      # Uncomment ORIGIN if you use a reverse proxy to access your containers.
+      #- ORIGIN=https://profilarr.yourdomain.com
+    networks: 
+      - arr-net
+
   bazarr: # subtitle grabber
     image: lscr.io/linuxserver/bazarr:${BAZARR_TAG}
     container_name: bazarr
@@ -87,23 +103,23 @@ services:
     networks: [arr-net, frontend-net]
     restart: unless-stopped
 
-  # nzbget: # usenet download agent
-  #   image: lscr.io/linuxserver/nzbget:${NZBGET_TAG}
-  #   container_name: nzbget
-  #   environment:
-  #     - PUID=${PUID:?missing PUID}
-  #     - PGID=${PGID:?missing PGID}
-  #     - TZ=${TZ:?missing time zone}
-  #     - NZBGET_USER=${NZBGET_USER} # optional
-  #     - NZBGET_PASS=${NZBGET_PASS} # optional
-  #   volumes:
-  #     - ${CONFIG_DIR}/nzbget:/config
-  #     - ${DATA_ROOT}:/data
-  #   network_mode: service:gluetun
-  #   restart: unless-stopped
-  #   depends_on:
-  #     gluetun:
-  #       condition: service_healthy
+      #  nzbget: # usenet download agent
+      #    image: lscr.io/linuxserver/nzbget:${NZBGET_TAG}
+      #    container_name: nzbget
+      #    environment:
+      #      - PUID=${PUID:?missing PUID}
+      #      - PGID=${PGID:?missing PGID}
+      #      - TZ=${TZ:?missing time zone}
+      #      - NZBGET_USER=${NZBGET_USER} # optional
+      #      - NZBGET_PASS=${NZBGET_PASS} # optional
+      #    volumes:
+      #      - ${CONFIG_DIR}/nzbget:/config
+      #      - ${DATA_ROOT}:/data
+      #    network_mode: service:gluetun
+      #    restart: unless-stopped
+      #    depends_on:
+      #      gluetun:
+      #        condition: service_healthy
 
   sabnzbd: # usnet download agent
     image: lscr.io/linuxserver/sabnzbd:${SABNZBD_TAG}
