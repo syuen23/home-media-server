@@ -7,9 +7,9 @@ Self-hosted media stack on Docker Compose.
 Configs and media are kept on separate roots:
 
 - `${CONFIG_DIR}` (default `/opt/appdata`) — per-app config, small, should be backed up
-- `${DATA_ROOT}` (default `/srv/media-server`) — media and downloads, typically on a large storage drive
+- `${DATA_ROOT}` (default `/srv/media-server/data`) — media and downloads, typically on a large storage drive
 
-Every container that touches media or downloads mounts `${DATA_ROOT}/data` as `/data` — same path everywhere so imports are hardlinks instead of copies.
+Every container that touches media or downloads mounts `${DATA_ROOT}` as `/data` — same path everywhere so imports are hardlinks instead of copies.
 
 ```
 /opt/appdata/             # CONFIG_DIR — on OS drive
@@ -19,15 +19,14 @@ Every container that touches media or downloads mounts `${DATA_ROOT}/data` as `/
 ├── nzbget/
 └── plex/
 
-/srv/media-server/        # DATA_ROOT — on storage drive
-└── data/                 # mounted as /data in every container
-    ├── downloads/
-    │   └── usenet/       # nzbget completes here, bucketed by category
-    │       ├── tv/
-    │       └── movies/
-    └── media/            # final library — Plex reads from here
-        ├── tv/
-        └── movies/
+/srv/media-server/data/   # DATA_ROOT — mounted as /data in every container
+├── downloads/
+│   └── usenet/           # nzbget completes here, bucketed by category
+│       ├── tv/
+│       └── movies/
+└── media/                # final library — Plex reads from here
+    ├── tv/
+    └── movies/
 ```
 
 In-app paths to set:
@@ -94,9 +93,6 @@ sudo chown -R 1000:1000 /opt/appdata
 sudo mkdir -p /srv/media-server/data/downloads/usenet/{tv,movies}
 sudo mkdir -p /srv/media-server/data/media/{tv,movies}
 sudo chown -R 1000:1000 /srv/media-server
-
-# Seerr named volume (must exist before compose up)
-docker volume create seerr-data
 ```
 
 Replace `1000:1000` with your actual `PUID:PGID` if different.

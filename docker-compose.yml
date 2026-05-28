@@ -34,7 +34,7 @@ services:
       - TZ=${TZ:?missing time zone}
     volumes:
       - ${CONFIG_DIR}/config/bazarr:/config
-      - ${DATA_ROOT}/data:/data
+      - ${DATA_ROOT}:/data
     ports:
       - ${BAZARR_PORT}:6767
     networks: [frontend-net]
@@ -64,7 +64,7 @@ services:
       - TZ=${TZ:?missing time zone}
     volumes:
       - ${CONFIG_DIR}/config/sonarr:/config
-      - ${DATA_ROOT}/data:/data
+      - ${DATA_ROOT}:/data
     ports:
       - ${SONARR_PORT}:8989
     networks: [arr-net, frontend-net]
@@ -79,7 +79,7 @@ services:
       - TZ=${TZ:?missing time zone}
     volumes:
       - ${CONFIG_DIR}/config/radarr:/config
-      - ${DATA_ROOT}/data:/data
+      - ${DATA_ROOT}:/data
     ports:
       - ${RADARR_PORT}:7878
     networks: [arr-net, frontend-net]
@@ -96,8 +96,7 @@ services:
       - NZBGET_PASS=${NZBGET_PASS} # optional
     volumes:
       - ${CONFIG_DIR}/config/nzbget:/config
-      - ${DATA_ROOT}/data:/data
-      - ${DATA_ROOT}/data/downloads/usenet:/downloads
+      - ${DATA_ROOT}:/data
     network_mode: service:gluetun
     restart: unless-stopped
     depends_on:
@@ -140,7 +139,7 @@ services:
       - PLEX_CLAIM=${PLEX_CLAIM} # optional, from https://plex.tv/claim, expires in 4 min
     volumes:
       - ${CONFIG_DIR}/config/plex:/config # plex library location
-      - ${DATA_ROOT}/data:/data
+      - ${DATA_ROOT}:/data
     restart: unless-stopped
 
 networks:
