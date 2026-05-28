@@ -17,6 +17,7 @@ services:
     ports:
       - ${NZBGET_PORT}:6789
       - ${PROWLARR_PORT}:9696
+      - ${SABNZBD_PORT}:8080
     restart: unless-stopped
     healthcheck:
       test: ping -c 1 www.google.com || exit 1
@@ -33,7 +34,7 @@ services:
       - PGID=${PGID:?missing PGID}
       - TZ=${TZ:?missing time zone}
     volumes:
-      - ${CONFIG_DIR}/config/bazarr:/config
+      - ${CONFIG_DIR}/bazarr:/config
       - ${DATA_ROOT}:/data
     ports:
       - ${BAZARR_PORT}:6767
@@ -48,7 +49,7 @@ services:
       - PGID=${PGID:?missing PGID}
       - TZ=${TZ:?missing time zone}
     volumes:
-      - ${CONFIG_DIR}/config/prowlarr:/config
+      - ${CONFIG_DIR}/prowlarr:/config
     network_mode: service:gluetun
     restart: unless-stopped
     depends_on:
@@ -63,7 +64,7 @@ services:
       - PGID=${PGID:?missing PGID}
       - TZ=${TZ:?missing time zone}
     volumes:
-      - ${CONFIG_DIR}/config/sonarr:/config
+      - ${CONFIG_DIR}/sonarr:/config
       - ${DATA_ROOT}:/data
     ports:
       - ${SONARR_PORT}:8989
@@ -78,27 +79,43 @@ services:
       - PGID=${PGID:?missing PGID}
       - TZ=${TZ:?missing time zone}
     volumes:
-      - ${CONFIG_DIR}/config/radarr:/config
+      - ${CONFIG_DIR}/radarr:/config
       - ${DATA_ROOT}:/data
     ports:
       - ${RADARR_PORT}:7878
     networks: [arr-net, frontend-net]
     restart: unless-stopped
 
-  nzbget: # usenet download agent
-    image: lscr.io/linuxserver/nzbget:${NZBGET_TAG}
-    container_name: nzbget
+  # nzbget: # usenet download agent
+  #   image: lscr.io/linuxserver/nzbget:${NZBGET_TAG}
+  #   container_name: nzbget
+  #   environment:
+  #     - PUID=${PUID:?missing PUID}
+  #     - PGID=${PGID:?missing PGID}
+  #     - TZ=${TZ:?missing time zone}
+  #     - NZBGET_USER=${NZBGET_USER} # optional
+  #     - NZBGET_PASS=${NZBGET_PASS} # optional
+  #   volumes:
+  #     - ${CONFIG_DIR}/nzbget:/config
+  #     - ${DATA_ROOT}:/data
+  #   network_mode: service:gluetun
+  #   restart: unless-stopped
+  #   depends_on:
+  #     gluetun:
+  #       condition: service_healthy
+
+  sabnzbd: # usnet download agent
+    image: lscr.io/linuxserver/sabnzbd:${SABNZBD_TAG}
+    container_name: sabnzbd
     environment:
       - PUID=${PUID:?missing PUID}
       - PGID=${PGID:?missing PGID}
       - TZ=${TZ:?missing time zone}
-      - NZBGET_USER=${NZBGET_USER} # optional
-      - NZBGET_PASS=${NZBGET_PASS} # optional
     volumes:
-      - ${CONFIG_DIR}/config/nzbget:/config
+      - ${CONFIG_DIR}/sabnzbd:/config
       - ${DATA_ROOT}:/data
-    network_mode: service:gluetun
     restart: unless-stopped
+    network_mode: service:gluetun
     depends_on:
       gluetun:
         condition: service_healthy
@@ -114,7 +131,7 @@ services:
     ports:
       - ${SEERR_PORT}:5055
     volumes:
-      - ${CONFIG_DIR}/config/seerr:/app/config
+      - ${CONFIG_DIR}/seerr:/app/config
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/settings/public || exit 1
       start_period: 20s
@@ -138,7 +155,7 @@ services:
       - VERSION=docker # set whether or not to update plex
       - PLEX_CLAIM=${PLEX_CLAIM} # optional, from https://plex.tv/claim, expires in 4 min
     volumes:
-      - ${CONFIG_DIR}/config/plex:/config # plex library location
+      - ${CONFIG_DIR}/plex:/config # plex library location
       - ${DATA_ROOT}:/data
     restart: unless-stopped
 
